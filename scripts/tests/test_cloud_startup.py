@@ -68,14 +68,20 @@ def run_startup(
     script: Path = STARTUP,
     **env: str,
 ) -> tuple[subprocess.CompletedProcess[str], list[str]]:
-    """Run startup.py with stubs that log each call; the stubs named in failing exit 1."""
+    """
+    Run startup.py with stubs that log each call; the stubs named in failing exit 1.
+
+    The bash stub also logs the MISE_ENV it ran with, ahead of its name.
+    """
     bin_dir = scratch / 'bin'
     bin_dir.mkdir()
     calls = scratch / 'calls'
     for name in STUBBED:
         stub = bin_dir / name
+        prefix = 'MISE_ENV=${MISE_ENV-} ' if name == 'bash' else ''
         stub.write_text(
-            f'#!/bin/sh\necho {name} "$@" >> {calls}\nexit {1 if name in failing.split() else 0}\n'
+            f'#!/bin/sh\necho {prefix}{name} "$@" >> {calls}\n'
+            f'exit {1 if name in failing.split() else 0}\n'
         )
         stub.chmod(0o755)
     result = subprocess.run(
@@ -105,7 +111,7 @@ def test_setup_provisions_the_host_then_installs_the_hooks(
     # test_setup_installs_every_marketplace_plugin covers the plugin installs.
     assert [call for call in calls if not call.startswith('claude plugin install ')] == [
         'claude plugin marketplace add ./',
-        f'bash scripts/install-toolchain {startup.TOOL_DIR}',
+        f'MISE_ENV={startup.TOOLCHAIN_ENV} bash scripts/install-toolchain {startup.TOOL_DIR}',
         'uv sync',
         f'uv run pre-commit install --install-hooks {hook_types}',
     ]

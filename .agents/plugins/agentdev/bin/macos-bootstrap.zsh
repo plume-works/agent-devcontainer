@@ -8,6 +8,8 @@ typeset -r PYTHON_VERSION=3.12
 # The repository files that declare and install the catalog's toolchain: see ADR-0111.
 typeset -r TOOLCHAIN_URL=${AGENTDEV_TOOLCHAIN_URL:-https://raw.githubusercontent.com/plume-works/agent-devcontainer/main}
 typeset -r TOOLCHAIN_FILES=(scripts/install-toolchain mise.toml mise.lock)
+# Only the deleted temp copy declares these tools, so a user's `mise prune` must never see them.
+typeset -r TOOLCHAIN_DATA_DIR=$HOME/.local/share/agentdev/mise
 
 typeset -r MARKETPLACE_REPO=plume-works/agent-devcontainer
 typeset -r MARKETPLACE=agent-devcontainer
@@ -62,7 +64,7 @@ install_toolchain() {
     mkdir -p $work/toolchain/${file:h}
     curl -fsSL -o $work/toolchain/$file $TOOLCHAIN_URL/$file
   done
-  bash $work/toolchain/scripts/install-toolchain $BIN_DIR
+  MISE_DATA_DIR=$TOOLCHAIN_DATA_DIR bash $work/toolchain/scripts/install-toolchain $BIN_DIR
 }
 
 install_python() {

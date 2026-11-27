@@ -72,7 +72,8 @@ to repeat. It changes the host in these ways:
   `iwe`, and `iwes`, at the versions and checksums the repository's `mise.toml`
   and `mise.lock` record, the same ones the devcontainer image installs. The
   bootstrap downloads both files and the repository's `scripts/install-toolchain`
-  from GitHub, and mise keeps the tools under `~/.local/share/mise`.
+  from GitHub. mise keeps the tools under `~/.local/share/agentdev/mise`, apart
+  from your own mise installs, so your `mise prune` never removes them.
 - **Python** — `uv python install --default` puts the Python version the catalog
   is tested on in `~/.local/bin` as `python3`.
 - **`~/.zprofile`** — one block between `# >>> agentdev macos-bootstrap >>>`

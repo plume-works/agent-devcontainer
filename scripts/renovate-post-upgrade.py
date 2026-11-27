@@ -40,16 +40,19 @@ def main() -> int:
     changed = changed_files()
     if not changed:
         return 0
-    # The image carries the old iwe; the bumped one migrates .iwe/ before the hooks run.
+    # The image carries the old iwe; the bumped one migrates .iwe/ and runs the hooks' `iwe`.
+    locked: tuple[str, ...] = ()
     if TOOLCHAIN in changed:
         os.environ['MISE_TRUSTED_CONFIG_PATHS'] = root
-        run('mise', 'exec', '--locked', '--', 'iwe', 'normalize')
+        locked = ('mise', 'exec', '--locked', '--')
+        run(*locked, 'iwe', 'normalize')
     # pre-commit through uv, not the image's copy: see ADR-0050.
     # Post-upgrade runs on the base branch; the guard is for commits.
     skip = os.environ.get('SKIP')
     os.environ['SKIP'] = f'{skip},no-commit-to-branch' if skip else 'no-commit-to-branch'
-    if run('uv', 'run', '--frozen', 'pre-commit', 'run', '--files', *changed_files(), check=False):
-        run('uv', 'run', '--frozen', 'pre-commit', 'run', '--files', *changed_files())
+    pre_commit = (*locked, 'uv', 'run', '--frozen', 'pre-commit', 'run', '--files')
+    if run(*pre_commit, *changed_files(), check=False):
+        run(*pre_commit, *changed_files())
     return 0
 
 

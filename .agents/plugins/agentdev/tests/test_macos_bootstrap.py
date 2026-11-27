@@ -81,7 +81,8 @@ exit 0
 
 # Stands in for scripts/install-toolchain: links the toolchain's stubs into its BIN_DIR.
 INSTALL_TOOLCHAIN = """#!/bin/bash
-printf '%s\\n' "install-toolchain $* MISE_ENV=${MISE_ENV:-}" >> "$STUB_LOG"
+printf '%s\\n' "install-toolchain $* MISE_ENV=${MISE_ENV:-} MISE_DATA_DIR=${MISE_DATA_DIR:-}" \\
+  >> "$STUB_LOG"
 mkdir -p "$1"
 for tool in "$STUB_DIR"/tools/*; do ln -sf "$tool" "$1/"; done
 """
@@ -199,7 +200,11 @@ def test_brew_bundle_receives_mise_and_the_claude_code_cask(host: Host) -> None:
 
 
 def test_the_catalog_toolchain_is_fetched_and_linked_into_local_bin(host: Host) -> None:
-    """The fetched install-toolchain gets ~/.local/bin and the catalog's list alone."""
+    """
+    The fetched install-toolchain gets ~/.local/bin, the catalog's list, and its own mise data.
+
+    The user's mise housekeeping never sees that data directory, so never prunes those tools.
+    """
     result = host.run('--skip-plugins')
 
     assert result.returncode == 0, result.stderr
@@ -209,7 +214,10 @@ def test_the_catalog_toolchain_is_fetched_and_linked_into_local_bin(host: Host) 
         for name in ('scripts/install-toolchain', 'mise.toml', 'mise.lock')
     ]
     bin_dir = host.home / '.local' / 'bin'
-    assert host.calls('install-toolchain') == [f'install-toolchain {bin_dir} MISE_ENV=']
+    data_dir = host.home / '.local/share/agentdev/mise'
+    assert host.calls('install-toolchain') == [
+        f'install-toolchain {bin_dir} MISE_ENV= MISE_DATA_DIR={data_dir}'
+    ]
     assert (bin_dir / 'iwe').exists()
 
 

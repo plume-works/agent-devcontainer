@@ -31,12 +31,18 @@ if [[ $count -eq 1 && -n "${STUB_PRECOMMIT_REWRITE:-}" ]]; then
 fi
 exit "${STUB_PRECOMMIT_EXIT:-0}"
 """
-# mise runs the command it is given; the bumped iwe migrates the config the way a bump does.
+# mise runs the command after `--`; the bumped iwe migrates the config the way a bump does.
 MISE_STUB = """#!/usr/bin/env bash
 set -euo pipefail
 printf 'mise %s | trusted=%s\\n' "$*" "${MISE_TRUSTED_CONFIG_PATHS-}" >> "$STUB_LOG"
 [[ -z "${STUB_MISE_EXIT:-}" ]] || exit "$STUB_MISE_EXIT"
-echo migrated > .iwe/config.toml
+while [[ "$1" != -- ]]; do shift; done
+shift
+if [[ "$1 $2" == 'iwe normalize' ]]; then
+  echo migrated > .iwe/config.toml
+else
+  exec "$@"
+fi
 """
 
 
@@ -157,9 +163,27 @@ def test_toolchain_bump_runs_the_bumped_iwe_before_pre_commit(repo: Path) -> Non
     code, calls = run(repo)
 
     assert code == 0
+    pre_commit = f'uv run --frozen pre-commit run --files {IWE_CONFIG} {TOOLCHAIN}'
     assert calls == [
         f'mise exec --locked -- iwe normalize | trusted={repo}',
-        f'uv run --frozen pre-commit run --files {IWE_CONFIG} {TOOLCHAIN}',
+        f'mise exec --locked -- {pre_commit} | trusted={repo}',
+        pre_commit,
+    ]
+
+
+def test_toolchain_bump_runs_both_pre_commit_passes_under_the_bumped_iwe(repo: Path) -> None:
+    """The hooks' bare `iwe` resolves to the locked one on every pass, not the image's."""
+    (repo / TOOLCHAIN).write_text('bumped\n')
+
+    code, calls = run(repo, STUB_PRECOMMIT_REWRITE=str(repo / 'pins.yml'))
+
+    assert code == 0
+    assert [call for call in calls if call.startswith('mise')] == [
+        f'mise exec --locked -- iwe normalize | trusted={repo}',
+        f'mise exec --locked -- uv run --frozen pre-commit run --files {IWE_CONFIG} {TOOLCHAIN}'
+        f' | trusted={repo}',
+        f'mise exec --locked -- uv run --frozen pre-commit run --files {IWE_CONFIG} {TOOLCHAIN}'
+        f' pins.yml | trusted={repo}',
     ]
 
 
