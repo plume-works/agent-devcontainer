@@ -216,7 +216,7 @@ destination is unclear, rather than parking it in a memory file meanwhile.
 For substantial feature, bug, architecture, or behavior work:
 
 - query relevant project memory before planning or implementation;
-- treat `docs/knowledge/data/` as the source of truth for project state and decisions;
+- treat `docs/knowledge/data/` as the source of truth for Project Knowledge Base and decisions;
 - update project memory when the work changes durable project knowledge.
 
 **Durable knowledge only** — see Best Practice 8 for the definition and the test.
