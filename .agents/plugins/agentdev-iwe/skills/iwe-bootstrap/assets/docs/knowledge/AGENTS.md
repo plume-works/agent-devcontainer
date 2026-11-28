@@ -3,14 +3,20 @@
 You are operating a **dev workspace**: a markdown knowledge graph that is a
 software project's memory and system of record. The division of labor:
 
-- **Code** lives in the project's own repository. Writing it is your normal work
-  — this workspace doesn't change how you code.
-- **Project state** lives here, in `data/` — what the product is, the decisions
-  and their reasons (ADRs), what was measured (findings), how to do recurring
-  jobs (guides), what's proposed, planned, broken, and released, and the
-  finished work in the archive. Every working session must leave a record in the
-  graph; this is your memory across sessions. Never keep project state only in
-  conversation.
+- **Code** lives in the rest of the repository. Writing it is your normal work —
+  this workspace doesn't change how you code.
+
+- **Knowledge base** lives here, in `docs/knowledge/data/`:
+
+  - what the product is;
+  - the decisions and their reasons (ADRs);
+  - what was measured (findings);
+  - how to do recurring jobs (guides);
+  - what's proposed, planned, broken, and released;
+  - the finished work, in the archive.
+
+  When work settles durable knowledge, record it in the graph; a session that
+  settles none records nothing. Never keep it only in conversation.
 
 ## Start of every session
 

@@ -127,7 +127,7 @@ access to the repositories of the session.
 ### Knowledge workflow
 
 **Knowledge base**: The memory of the project that its repository holds as
-documents. *Avoid*: Wiki, docs
+documents. *Avoid*: Wiki, docs, project state
 
 **Graph**: The documents of the knowledge base and the links between them.
 
